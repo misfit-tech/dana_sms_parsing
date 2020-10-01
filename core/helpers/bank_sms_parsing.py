@@ -1814,7 +1814,7 @@ def parse_sms_data(data):
  
  
   # as a precaution, replace single quotes with double quotes
-  string = raw_data.replace("'", '"').replace('\n', '').replace('\r', '').replace('\f', '').replace('\t', '').replace('\v', '')
+  string = data.replace("'", '"').replace('\n', '').replace('\r', '').replace('\f', '').replace('\t', '').replace('\v', '')
  
   # initialize the string as as json string object
   string = json.loads(string)
