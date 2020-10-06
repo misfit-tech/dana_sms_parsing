@@ -1690,6 +1690,7 @@ def parse_sms_data(data):
   from dateutil.relativedelta import relativedelta
  
  
+  
   # as a precaution, replace single quotes with double quotes
   string = raw_data.replace("'", '"').replace('\n', '').replace('\r', '').replace('\f', '').replace('\t', '').replace('\v', '')
  
@@ -1709,6 +1710,7 @@ def parse_sms_data(data):
                                       'PREMIER BANK', 'EBL.', 'AIBL.', 
                                       'CITY BANK', 'NRBC BANK', 'AB BANK', 
                                       'UCB BANK', 'UCB RETAIL'])]
+  
   # convert data type of date to turn integer values into actual timestamp values
   data['date'] = data['date'].astype(int)
 
@@ -1897,7 +1899,7 @@ def parse_sms_data(data):
     
   data = data.astype(convert_dict)
 
-  data = data.groupby(['id', 'address']).agg({
+  data = data.groupby(['customer_id', 'address']).agg({
                                               'date': 'last', 'debit': 'sum', 'credit': 'sum', 'withdrawal': 'sum', 
                                               'card_payment': 'sum', 'card_purchase': 'sum', 'interest_credit': 'sum', 
                                               'deposit': 'sum', 'bank_to_mobile_recharge': 'sum', 'balance': 'last', 
@@ -1905,6 +1907,7 @@ def parse_sms_data(data):
                                             }).reset_index()
   
   json_string = data.to_json(orient = 'records')
+  print(json_string)
 
   return json_string
 
