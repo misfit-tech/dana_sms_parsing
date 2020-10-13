@@ -1906,10 +1906,27 @@ def parse_sms_data(data):
                                               'fund_transfer_in': 'sum', 'fund_transfer_out': 'sum'
                                             }).reset_index()
   
-  json_string = data.to_json(orient = 'records')
-  print(json_string)
+  #######
+  # Now we have to add customer_id as parent
 
+  # initialize an empty list as add_parent
+  add_parent = []
+  
+  # loop through the data dataframe, and append parent and response to the add_parent list 
+  for i in range(len(data)):
+    customer_id = data.loc[i, 'customer_id']
+    values = data.loc[i, ].to_dict()
+    add_parent.append([customer_id, values])
+  
+  # initialize the appended add_parent list as a dataframe with column names
+  add_parent = pd.DataFrame(add_parent, columns = ['customer_id', 'values'])
+
+  # convert the add_parent dataframe to a json string with indentation
+  json_string = add_parent.to_json(orient = 'records', indent = 4)
+
+  # json_string = json.dumps(json_string, indent = 4)
+
+
+  # finally return the response
   return json_string
 
-
-  
