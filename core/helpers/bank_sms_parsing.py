@@ -1682,7 +1682,7 @@ def check_ucb_balance(text):
 # Parse
 """
 
-def parse_sms_data(raw_data):
+def parse_sms_data(data):
   # import pandas and json
   import pandas as pd
   import json
@@ -1692,7 +1692,7 @@ def parse_sms_data(raw_data):
  
   
   # as a precaution, replace single quotes with double quotes
-  string = raw_data.replace("'", '"').replace('\n', '').replace('\r', '').replace('\f', '').replace('\t', '').replace('\v', '')
+  string = data.replace("'", '"').replace('\n', '').replace('\r', '').replace('\f', '').replace('\t', '').replace('\v', '')
  
   # initialize the string as as json string object
   string = json.loads(string)
@@ -1922,8 +1922,8 @@ def parse_sms_data(raw_data):
   add_parent = pd.DataFrame(add_parent, columns = ['customer_id', 'values'])
 
   # convert the add_parent dataframe to a json string with indentation
-  #json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response
-  json_string = add_parent.to_json(orient = 'records')
+  json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response
+  
 
 
 
