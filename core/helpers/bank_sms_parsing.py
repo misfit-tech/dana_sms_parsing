@@ -1682,7 +1682,7 @@ def check_ucb_balance(text):
 # Parse
 """
 
-def parse_sms_data(data):
+def parse_sms_data(raw_data):
   # import pandas and json
   import pandas as pd
   import json
@@ -1720,7 +1720,7 @@ def parse_sms_data(data):
 
   # initialize start and end dates for which you will filter the dataset
   start_date = datetime.datetime.today()
-  end_date = start_date + relativedelta(months=-3)
+  end_date = start_date + relativedelta(months=-1)
 
   # create a mask for filtering within the date range
   mask = (data['date'] <= start_date) & (data['date'] > end_date) 
@@ -1922,9 +1922,9 @@ def parse_sms_data(data):
   add_parent = pd.DataFrame(add_parent, columns = ['customer_id', 'values'])
 
   # convert the add_parent dataframe to a json string with indentation
-  json_string = add_parent.to_json(orient = 'records', indent = 4)
+  #json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response
+  json_string = add_parent.to_json(orient = 'records')
 
-  # json_string = json.dumps(json_string, indent = 4)
 
 
   # finally return the response
