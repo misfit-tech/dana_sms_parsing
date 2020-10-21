@@ -1947,5 +1947,5 @@ def parse_sms_data(data):
   # convert the add_parent dataframe to a json string with indentation
   json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response\
 
-  return json_string
+  return json_string[1:-1]
 
