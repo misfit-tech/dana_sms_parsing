@@ -735,7 +735,9 @@ def check_ebl_fund_transfer_in(text):
 
   # check if txn is Fund Transfer (in) and 
   fund_transfer_in = bool(re.search(fund_transfer_in_pattern, text))
-
+  
+  # initialize fund_transfer_in_amount
+  fund_transfer_in_amount = None
   # find transaction amount
   if bool(re.search(fund_transfer_in_pattern, text)) == True:
     # check the amount 
@@ -864,6 +866,7 @@ def check_ebl_balance(text):
   balance = bool(re.search(balance_pattern, text))
 
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -905,6 +908,7 @@ def check_aibl_deposit(text):
   deposit = bool(re.search(deposit_pattern, text))
 
   # find deposit amount
+  deposit_amount = None
   if deposit == True:
     # check the amount 
     try:
@@ -943,6 +947,7 @@ def check_aibl_debit(text):
   debit = bool(re.search(debit_pattern, text))
 
   # find deposit amount
+  debit_amount = None
   if debit == True:
     # check the amount 
     try:
@@ -1018,6 +1023,7 @@ def check_aibl_balance(text):
   balance = bool(re.search(balance_pattern, text))
 
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -1059,6 +1065,7 @@ def check_city_deposit(text):
   deposit = bool(re.search(deposit_pattern, text))
 
   # find deposit amount
+  deposit_amount = None
   if deposit == True:
     # check the amount 
     try:
@@ -1078,7 +1085,7 @@ def check_city_deposit(text):
 # keyword: card payment
 
 # dummy text
-# text = "05-JUL-20 Tk. 8,049.42 payment received CARD NO: 376***636 Client ID: 859360"
+text = "05-JUL-20 Tk. 8,049.42 payment received CARD NO: 376***636 Client ID: 859360"
 
 def check_city_card_payment(text):
   # import libraries
@@ -1108,7 +1115,7 @@ def check_city_card_payment(text):
 
   return card_payment_amount
 
-# print(check_city_card_payment(text))
+print(check_city_card_payment(text))
 
 """## Cash Out/Withdrawal"""
 
@@ -1174,6 +1181,7 @@ def check_city_balance(text):
   balance = bool(re.search(balance_pattern, text))
 
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -1291,6 +1299,7 @@ def check_nrbc_balance(text):
   balance = bool(re.search(balance_pattern, text))
 
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -1521,6 +1530,7 @@ def check_ab_balance(text):
   balance = bool(re.search(balance_pattern, text))
 
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -1637,6 +1647,7 @@ def check_ucb_balance(text):
   balance = bool(re.search(balance_pattern, text))
  
   # find balance amount
+  balance_amount = None
   if balance == True:
     # check the amount 
     try:
@@ -1855,7 +1866,7 @@ def parse_sms_data(data):
       data.loc[i, 'fund_transfer_in'] = None
       data.loc[i, 'fund_transfer_out'] = None
     
-    # check if the text if from NRBC and fill the columns accordingly
+    # check if the text if from AB and fill the columns accordingly
     elif data.loc[i, 'address'] == 'AB BANK':
       data.loc[i, 'debit'] = None
       data.loc[i, 'credit'] = check_ab_credit(data.loc[i, 'body'])
@@ -1909,24 +1920,32 @@ def parse_sms_data(data):
   #######
   # Now we have to add customer_id as parent
 
-  # initialize an empty list as add_parent
+  # create array of unique values for customer_id
+  customer_parent_list = data['customer_id'].unique()
+
+  # initialize an empty list which will eventually turn into the nested json output
   add_parent = []
-  
-  # loop through the data dataframe, and append parent and response to the add_parent list 
-  for i in range(len(data)):
-    customer_id = data.loc[i, 'customer_id']
-    values = data.loc[i, ].to_dict()
-    add_parent.append([customer_id, values])
-  
+
+  # initialize counters, lists and for and while loops to loop through the mess and sort 
+  # the data into a [customer_id, values] pair.
+  i = 0 
+  for j in customer_parent_list:
+    add_values = []
+    try:  
+      while data.loc[i, 'customer_id'] == j:
+        
+        add_values.append(dict(data.iloc[i, :].drop(columns=['customer_id'], axis = 1)))
+        i += 1
+    except:
+      pass
+
+    add_parent.append([j, add_values])
+
   # initialize the appended add_parent list as a dataframe with column names
   add_parent = pd.DataFrame(add_parent, columns = ['customer_id', 'values'])
 
   # convert the add_parent dataframe to a json string with indentation
-  json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response
-  
+  json_string = add_parent.to_json(orient = 'records', indent = 4) # indent the response\
 
-
-
-  # finally return the response
   return json_string
 
