@@ -27,12 +27,13 @@ class SMSParsing(APIView):
             return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
         if token == 'Bearer':
+            authorization_token = authorization.split()[0] + ' ${' + authorization.split()[1] + '}'
             if sms:
                 try:
                     parsed_data = bank_sms_parsing.parse_sms_data(data=sms)
                     header = {
                         'Content-type': 'application/json',
-                        'Authorization': authorization
+                        'Authorization': authorization_token
                     }
                     post_data = requests.post('http://softcell.yearstech.com/demo/dana/api/sms/parse',
                                               json=json.loads(parsed_data),
