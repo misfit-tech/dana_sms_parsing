@@ -12,33 +12,57 @@ class SMSParsing(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         sms = data.get('data')
-        if sms:
+        authorization = request.META.get('HTTP_AUTHORIZATION')
+
+        if authorization:
             try:
-                parsed_data = bank_sms_parsing.parse_sms_data(data=sms)
-                context = {
-                    'message': 'Parsed SMS',
-                    'data': json.loads(parsed_data),
-                    'success': True
-                }
-                header = {
-                    'Content-type': 'application/json'
-                }
-                post_data = requests.post('http://softcell.yearstech.com/demo/dana/api/sms/parse',
-                                          json=json.loads(parsed_data),
-                                          headers=header
-                                          )
-                return Response(context, status=status.HTTP_200_OK)
+                token = authorization.split()[0]
             except ValueError:
-                context = {
-                    'message': 'Bad Format',
-                    'data': None,
-                    'success': False
-                }
-                return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                token = None
         else:
             context = {
-                'message': 'No Content',
+                'message': 'Please provide authorization',
                 'data': None,
                 'success': False
             }
-            return Response(context, status=status.HTTP_204_NO_CONTENT)
+            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+        if token == 'Bearer':
+            if sms:
+                try:
+                    parsed_data = bank_sms_parsing.parse_sms_data(data=sms)
+                    context = {
+                        'message': 'Parsed SMS',
+                        'data': json.loads(parsed_data),
+                        'success': True
+                    }
+                    header = {
+                        'Content-type': 'application/json',
+                        'Authorization': authorization
+                    }
+                    post_data = requests.post('http://softcell.yearstech.com/demo/dana/api/sms/parse',
+                                              json=json.loads(parsed_data),
+                                              headers=header
+                                              )
+                    return Response(context, status=status.HTTP_200_OK)
+                except ValueError:
+                    context = {
+                        'message': 'Bad Format',
+                        'data': None,
+                        'success': False
+                    }
+                    return Response(context, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                context = {
+                    'message': 'No Content',
+                    'data': None,
+                    'success': False
+                }
+                return Response(context, status=status.HTTP_204_NO_CONTENT)
+        else:
+            context = {
+                'message': 'Please provide valid authorization',
+                'data': None,
+                'success': False
+            }
+            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
