@@ -13,7 +13,6 @@ class SMSParsing(APIView):
         data = request.data
         sms = data.get('data')
         authorization = request.META.get('HTTP_AUTHORIZATION')
-
         if authorization:
             try:
                 token = authorization.split()[0]
@@ -31,11 +30,6 @@ class SMSParsing(APIView):
             if sms:
                 try:
                     parsed_data = bank_sms_parsing.parse_sms_data(data=sms)
-                    context = {
-                        'message': 'Parsed SMS',
-                        'data': json.loads(parsed_data),
-                        'success': True
-                    }
                     header = {
                         'Content-type': 'application/json',
                         'Authorization': authorization
@@ -44,7 +38,7 @@ class SMSParsing(APIView):
                                               json=json.loads(parsed_data),
                                               headers=header
                                               )
-                    return Response(context, status=status.HTTP_200_OK)
+                    return Response(post_data.json(), status=status.HTTP_200_OK)
                 except ValueError:
                     context = {
                         'message': 'Bad Format',
